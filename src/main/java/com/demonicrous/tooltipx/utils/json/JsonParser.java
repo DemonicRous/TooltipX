@@ -44,7 +44,7 @@ public class JsonParser {
             } else if (key.contains("tab")) {
                 TabConfig config = parseTabConfig(file);
                 if (config != null) {
-                    tabConfigMap.put(FilenameUtils.removeExtension(file.getName()), config);
+                    tabConfigMap.put(config.getUnlocalizedName(), config);
                     TooltipX.logger.info("Loaded tab config: {}", file.getName());
                 }
             }

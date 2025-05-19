@@ -1,7 +1,10 @@
 package com.demonicrous.tooltipx.mixins.impl.client;
 
 import com.demonicrous.tooltipx.TooltipX;
+import com.demonicrous.tooltipx.utils.ColorUtils;
 import com.demonicrous.tooltipx.utils.TabsUtils;
+import com.demonicrous.tooltipx.utils.config.TabConfig;
+import com.demonicrous.tooltipx.utils.json.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -16,6 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -76,9 +80,97 @@ public abstract class MixinGuiScreen extends Gui {
         String unlocalizedName = TabsUtils.getUnlocalizedNameFromTabName(tabName);
         TooltipX.logger.info("UnlocalizedName: {}", unlocalizedName);
 
+        TabConfig config = JsonParser.tabConfigMap.get(unlocalizedName);
+        //TooltipX.logger.info("Config: {}", config.getIcon());
+        if (config != null && config.isActive()) {
+            // Применить стиль из конфига
+            List<String> textLines = Arrays.asList(
+                    config.getName(),
+                    config.getDescription()
+            );
+            TooltipX.logger.info("TextLines: {}", textLines.toString());
+            this.drawCreativeTabHoveringText(textLines, mouseX, mouseY, this.fontRendererObj, config);
+        } else {
+            // Стандартный рендер
+            this.drawHoveringText(Collections.singletonList(tabName), mouseX, mouseY, this.fontRendererObj);
+        }
 
 
     }
+
+    @Unique
+    private void drawCreativeTabHoveringText(List<String> textLines, int mouseX, int mouseY, FontRenderer fontRendererObj, TabConfig config) {
+        if (!textLines.isEmpty()) {
+            glDisable(GL_RESCALE_NORMAL);
+            RenderHelper.disableStandardItemLighting();
+            glDisable(GL_LIGHTING);
+            glDisable(GL_DEPTH_TEST);
+
+            int maxWidth = 0;
+            for (String textLine : textLines) {
+                int lineWidth = fontRendererObj.getStringWidth(textLine);
+                if (lineWidth > maxWidth) {
+                    maxWidth = lineWidth;
+                }
+            }
+
+            int tooltipX = mouseX + 12;
+            int tooltipY = mouseY - 12;
+            int tooltipHeight = 8;
+            if (textLines.size() > 1) {
+                tooltipHeight += 2 + (textLines.size() - 1) * 10;
+            }
+
+            if (tooltipX + maxWidth > this.width) {
+                tooltipX -= 28 + maxWidth;
+            }
+
+            if (tooltipY + tooltipHeight + 6 > this.height) {
+                tooltipY = this.height - tooltipHeight - 6;
+            }
+
+            this.zLevel = 300.0F;
+            itemRender.zLevel = 300.0F;
+            int backgroundColor = 0xCC000000; // Черный цвет фона с прозрачностью
+            int borderColorStart = 0x80FFFFFF; // Начальный цвет рамки
+            int borderColorEnd = 0x00000000;   // Конечный цвет рамки
+
+            // Отрисовка фона и рамки
+            drawGradientRect(tooltipX - 3, tooltipY - 4, tooltipX + maxWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
+            drawGradientRect(tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
+            drawGradientRect(tooltipX - 3, tooltipY - 3, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+            drawGradientRect(tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+            drawGradientRect(tooltipX + maxWidth + 3, tooltipY - 3, tooltipX + maxWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+            drawGradientRect(tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+            drawGradientRect(tooltipX + maxWidth + 2, tooltipY - 3 + 1, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+            drawGradientRect(tooltipX - 3, tooltipY - 3, tooltipX + maxWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
+            drawGradientRect(tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
+
+            // Отрисовка текста с градиентом
+            for (int i = 0; i < textLines.size(); ++i) {
+                String text = textLines.get(i);
+                int textX = tooltipX + maxWidth / 2 - fontRendererObj.getStringWidth(text) / 2;
+                fontRendererObj.drawString(text, textX, tooltipY, 0xFFFFFF);
+
+                TooltipX.logger.info("Color HEX: {}, Color: {}", config.getColorTextSetting().getColor(), ColorUtils.hexToColor(config.getColorTextSetting().getColor(), config.getColorTextSetting().getOpacity()));
+                TooltipX.logger.info(ColorUtils.hexToColor("#FF0000", 1.0) );
+
+                if (i == 0) {
+                    tooltipY += 2;
+                }
+                tooltipY += 10;
+            }
+
+            this.zLevel = 0.0F;
+            itemRender.zLevel = 0.0F;
+            glEnable(GL_LIGHTING);
+            glEnable(GL_DEPTH_TEST);
+            RenderHelper.enableStandardItemLighting();
+            glEnable(GL_RESCALE_NORMAL);
+        }
+    }
+
+
 
     /**
      * Renders a tooltip at the given coordinates, with the given text lines.

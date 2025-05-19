@@ -27,6 +27,8 @@ public class ConfigHandler {
     private static boolean examplesGenerated = false;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+
+
     // General settings
     public static boolean enableMod = true;
     public static boolean showDebugInfo = false;
@@ -174,8 +176,8 @@ public class ConfigHandler {
                             RarityConfig config = JsonParser.rarityConfigMap.get(fileName);
                             TooltipX.logger.info(config.getName());
                         } else if (key.equals("tabs")) {
-                            TabConfig config = JsonParser.tabConfigMap.get(fileName);
-                            TooltipX.logger.info(config.getName());
+                            //TabConfig config = JsonParser.tabConfigMap.get(fileName);
+                            //TooltipX.logger.info(config.getName());
                         }
                     }
                 }

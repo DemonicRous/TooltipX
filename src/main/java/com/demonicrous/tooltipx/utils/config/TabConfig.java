@@ -1,6 +1,6 @@
 package com.demonicrous.tooltipx.utils.config;
 
-import com.demonicrous.tooltipx.utils.config.setting.OpacitySetting;
+import com.demonicrous.tooltipx.utils.config.setting.ColorSetting;
 import com.google.gson.annotations.SerializedName;
 
 public class TabConfig {
@@ -22,8 +22,11 @@ public class TabConfig {
     @SerializedName("icon")
     private String icon = "minecraft:stone";
 
-    @SerializedName("opacity")
-    private OpacitySetting opacitySetting;
+    @SerializedName("text")
+    private ColorSetting colorTextSetting;
+
+    @SerializedName("border")
+    private ColorSetting colorBorderSetting;
 
     // Геттеры
     public boolean isActive() { return active; }
@@ -32,7 +35,8 @@ public class TabConfig {
     public String getType() { return type; }
     public String getUnlocalizedName() { return unlocalizedName; }
     public String getIcon() { return icon; }
-    public OpacitySetting getOpacitySetting() { return opacitySetting; }
+    public ColorSetting getColorTextSetting() { return colorTextSetting; }
+    public ColorSetting getColorBorderSetting() { return colorBorderSetting; }
 
     // Сеттеры
     public void setActive(boolean active) { this.active = active; }
@@ -41,7 +45,8 @@ public class TabConfig {
     public void setType(String type) { this.type = type; }
     public void setUnlocalizedName(String unlocalizedName) { this.unlocalizedName = unlocalizedName; }
     public void setIcon(String icon) { this.icon = icon; }
-    public void setOpacitySetting(OpacitySetting opacitySetting) { this.opacitySetting = opacitySetting; }
+    public void setColorTextSetting(ColorSetting colorSetting) { this.colorTextSetting = colorSetting; }
+    public void setColorBorderSetting(ColorSetting colorSetting) { this.colorBorderSetting = colorSetting; }
 
     public static TabConfig defaultExample(boolean active, String name,
                                            String description, String type, String unlocalizedName, String icon) {
@@ -52,7 +57,8 @@ public class TabConfig {
         config.setType(type);
         config.setUnlocalizedName(unlocalizedName);
         config.setIcon(icon);
-        config.setOpacitySetting(new OpacitySetting(1.0f, 1.0f, 1.0f));
+        config.setColorTextSetting(new ColorSetting().createTextDefault());
+        config.setColorBorderSetting(new ColorSetting().createBorderDefault());
         return config;
     }
 }
