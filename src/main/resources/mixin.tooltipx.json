@@ -1,0 +1,20 @@
+{
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "required": true,
+  "target": "@env(DEFAULT)",
+  "package": "com.demonicrous.tooltipx.mixins.impl",
+  "refmap": "${mixin_refmap}",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "common.MixinJarDiscoverer"
+  ],
+  "client": [
+    "client.MixinGuiScreen",
+    "client.MixinMinecraft"
+  ],
+  "server": [
+  ]
+}
